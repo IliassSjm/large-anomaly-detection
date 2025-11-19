@@ -1,0 +1,1 @@
+{"<PAD>": 0, "<UNK>": 1, "INFO:Request received": 2, "INFO:User authenticated": 3, "INFO:Item added to cart": 4, "INFO:Processing payment": 5, "INFO:Order placed": 6, "ERROR:Database connection failed": 7}

@@ -1,0 +1,11 @@
+torch
+fastapi
+uvicorn
+kafka-python
+pydantic
+pytest
+numpy
+pandas
+scikit-learn
+requests
+httpx
