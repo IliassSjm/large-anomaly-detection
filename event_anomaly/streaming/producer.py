@@ -6,6 +6,15 @@ from kafka import KafkaProducer
 from ..config import *
 from ..data.synthetic_generator import LogGenerator
 
+"""
+Kafka Log Producer
+==================
+
+Acts as the log shipper (similar to Filebeat or Fluentd).
+It generates synthetic log events using `LogGenerator` and pushes them to the 
+raw logs Kafka topic (`logs_raw`).
+"""
+
 def run_producer():
     producer = KafkaProducer(
         bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,

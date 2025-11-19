@@ -2,6 +2,26 @@
 import torch
 import torch.nn as nn
 
+"""
+Sequence Anomaly Model (LSTM)
+=============================
+
+This module defines the PyTorch model used for anomaly detection.
+
+Why LSTM?
+---------
+Logs are sequential time-series data. LSTMs (Long Short-Term Memory networks) are 
+excellent at capturing long-term dependencies in sequences, allowing the model to 
+learn the "grammar" of valid log flows.
+
+Anomaly Detection Logic:
+------------------------
+The model is trained to predict the probability of the next event or the validity 
+of the sequence. During inference, if the model encounters a structurally unexpected 
+event (e.g., "INFO:Auth" followed by "ERROR:DB_FAIL"), the predicted likelihood drops.
+This is converted into an anomaly score; if it crosses a threshold, the sequence is flagged.
+"""
+
 class LogAnomalyModel(nn.Module):
     def __init__(self, vocab_size, embedding_dim, hidden_dim, num_layers, dropout=0.5):
         super(LogAnomalyModel, self).__init__()

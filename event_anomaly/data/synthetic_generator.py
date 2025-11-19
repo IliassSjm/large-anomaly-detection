@@ -6,6 +6,28 @@ import uuid
 from typing import List, Dict
 from datetime import datetime, timedelta
 
+"""
+Synthetic Log Generator for Anomaly Detection
+=============================================
+
+This module generates synthetic log sequences to simulate a microservices environment.
+It is designed to scale to tens of millions of log lines by procedurally generating
+events rather than reading from a static file.
+
+1. The "Happy Path" (Normal Patterns):
+   A normal user journey follows a specific grammar:
+   Request received -> User authenticated -> Item added to cart -> Processing payment -> Order placed
+
+2. The "Failure Modes" (Anomalies):
+   We inject specific failure patterns with a small probability (controlled by `is_anomaly`):
+   - Burst Errors: A sudden stream of "Database connection failed" errors.
+   - Incomplete Flows: A transaction that stops abruptly after authentication.
+   - Shuffle/Noise: Random timing variations.
+
+3. Scaling:
+   Run with `--num 10000000` to generate tens of millions of sequences.
+"""
+
 # Constants for generation
 SERVICES = ["auth-service", "payment-service", "order-service", "inventory-service"]
 LOG_LEVELS = ["INFO", "WARN", "ERROR", "DEBUG"]

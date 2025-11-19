@@ -6,6 +6,22 @@ from kafka import KafkaConsumer, KafkaProducer
 from collections import defaultdict
 from ..config import *
 
+"""
+Kafka Inference Consumer
+========================
+
+Reads raw logs from Kafka and groups them by `request_id` to reconstruct 
+full transaction sequences.
+
+Why Grouping?
+-------------
+Sequence anomalies cannot be detected on isolated log lines. We must reconstruct 
+the per-request sequence (session window) before passing it to the inference service.
+
+Once a sequence is complete (or times out), it is sent to the FastAPI inference 
+endpoint. If an anomaly is detected, an alert is published to `logs_alerts`.
+"""
+
 # Buffer to hold events by request_id until we have a full sequence or timeout
 # In a real system, we might use Flink or Kafka Streams for windowing.
 # Here we use a simple local buffer.

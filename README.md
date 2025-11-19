@@ -18,6 +18,27 @@ The pipeline consists of four main components:
 *   **Stream Processing**: Kafka producers and consumers for real-time log ingestion and windowing.
 *   **Inference Service**: High-performance REST API for scoring log sequences.
 
+## How It Works
+
+### 1. Data Generation (The "Grammar" of Logs)
+To simulate a realistic environment, we use a procedural generator (`event_anomaly/data/synthetic_generator.py`) rather than static CSVs. 
+- **Happy Path**: The generator creates valid microservice traces (e.g., `Request -> Auth -> Cart -> Payment -> Order`).
+- **Failure Modes**: It injects specific anomalies with a low probability, such as **Burst Errors** (database cascading failures) or **Incomplete Flows** (process crashes).
+- **Scaling**: The generator is algorithmic, meaning we can generate **tens of millions of log lines** (`--num 10000000`) to train robust models.
+
+### 2. Sequence Modeling (LSTM)
+We treat log entries like words in a sentence. An **LSTM (Long Short-Term Memory)** network (`event_anomaly/models/sequence_model.py`) learns the probability distribution of the next event given the history.
+- When the model sees a sequence that violates the learned grammar (e.g., `Auth` followed immediately by `DB_Error`), the anomaly score spikes.
+
+### 3. Streaming Pipeline
+- **Ingestion**: `producer.py` pushes raw logs to a Kafka topic (`logs_raw`).
+- **Grouping**: `consumer.py` reads the stream and **groups events by `request_id`**. This is critical because anomalies often exist in the *sequence* of events, not in individual lines.
+- **Alerting**: Completed sequences are sent to the inference service. Anomalies are published to an alerts topic (`logs_alerts`).
+
+### 4. Online Inference
+The **FastAPI** service (`event_anomaly/service/api.py`) hosts the trained model.
+- It is optimized for low latency, keeping end-to-end processing (from HTTP request to score) under **200ms** (typically ~40-80ms P99 in our tests).
+
 ## Setup & Usage
 
 ### 1. Environment
